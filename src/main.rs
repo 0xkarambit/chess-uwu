@@ -100,6 +100,7 @@ struct Piece {
     // does a piece need to store its position ? or on the other hand... do we need to store a 2D Array for the chess board.
     // I think we need to store the positions in a global 2D array because we need to be able to get the pieces by positions...
     // Maybe we could use a HashMap<(Row, Col), Piece> for it ?
+    // Okie, I dont think it matters that much for now UwU
     position: Position, 
     is_black: bool,
     has_moved_before: bool
