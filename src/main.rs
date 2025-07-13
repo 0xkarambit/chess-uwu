@@ -1,4 +1,6 @@
 
+mod board;
+use board::Board;
 
 // First we create a board and all the pieces !
 // Row, Col only needs to represent 8 distinct values so we only need 3 bits
@@ -6,83 +8,6 @@ type Row = u8;
 type Col = u8;
 type Position = (Row, Col); // position is (col, row)
 type Square = Option<Piece>;
-
-// Board must be accessed like this board[row][col]
-const BOARDSIZE: usize = 8;
-type Board = [[Square; BOARDSIZE]; BOARDSIZE];
-
-// Board functions (make it a module)
-
-// ♔ 	♕ 	♖ 	♗ 	♘ 	♙ 	♚ 	♛ 	♜ 	♝ 	♞ 	♟ 
-pub mod board_mod {
-    use super::*;
-
-    pub(crate) fn print(board: &Board) {
-        for (idx, row) in board.iter().enumerate() {
-            print!("{} ", BOARDSIZE - idx);
-            for square in row {
-                match square {
-                    Some(piece) => {
-                        match (piece.is_black, piece.kind) {
-                            (true, PieceKinds::KING) => print!("♚"),
-                            (true, PieceKinds::QUEEN) => print!("♛"),
-                            (true, PieceKinds::BISHOP) => print!("♝"),
-                            (true, PieceKinds::KNIGHT) => print!("♞"),
-                            (true, PieceKinds::ROOK) => print!("♜"),
-                            (true, PieceKinds::PAWN) => print!("♟"),
-                            // White pieces
-                            (false, PieceKinds::KING) => print!("♔"),
-                            (false, PieceKinds::QUEEN) => print!("♕"),
-                            (false, PieceKinds::BISHOP) => print!("♗"),
-                            (false, PieceKinds::KNIGHT) => print!("♘"),
-                            (false, PieceKinds::ROOK) => print!("♖"),
-                            (false, PieceKinds::PAWN) => print!("♙"),
-                        }
-                        print!(" ");
-                    },
-                    None => print!("  ")
-                }
-            }
-            println!();
-        }
-        // offset for the vertical numbers
-        print!("  ");
-        for i in 'a'..='h' {
-            print!("{} ", i)
-        }
-    }
-
-
-    pub(crate) fn init(board: &mut Board) {
-        use PieceKinds::*;
-        
-        board[0] = [
-            Some(Piece::new(ROOK, true)),
-            Some(Piece::new(KNIGHT, true)),
-            Some(Piece::new(BISHOP, true)),
-            Some(Piece::new(QUEEN, true)),
-            Some(Piece::new(KING, true)),
-            Some(Piece::new(BISHOP, true)),
-            Some(Piece::new(KNIGHT, true)),
-            Some(Piece::new(ROOK, true)),
-        ];
-
-        board[1] = [Some(Piece::new(PAWN, true)); 8];
-
-        board[7] = [
-            Some(Piece::new(ROOK, false)),
-            Some(Piece::new(KNIGHT, false)),
-            Some(Piece::new(BISHOP, false)),
-            Some(Piece::new(QUEEN, false)),
-            Some(Piece::new(KING, false)),
-            Some(Piece::new(BISHOP, false)),
-            Some(Piece::new(KNIGHT, false)),
-            Some(Piece::new(ROOK, false)),
-        ];
-
-        board[6] = [Some(Piece::new(PAWN, false)); 8];
-}
-}
 
 #[derive(Clone, Copy, Debug)]
 enum PieceKinds {
@@ -115,7 +40,7 @@ impl Piece {
             has_moved_before: false,
         }
     }
-    pub fn legal_moves(&self, board: &Board) -> Vec<Position> {
+    pub fn legal_moves(&self, board: &board::BoardType) -> Vec<Position> {
         !unimplemented!()
     }
 } 
@@ -123,8 +48,15 @@ impl Piece {
 
 // Pieces
 
+const FEN: &'static str = "8/5k2/3p4/1p1Pp2p/pP2Pp1P/P4P1K/8/8 b - - 99 50";
+//  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b - - 99 50";
+
+
 fn main() {
-    let mut board: Board = [[None; BOARDSIZE]; BOARDSIZE];
-    board_mod::init(&mut board);
-    board_mod::print(&board);
+    // let mut board: BoardType = [[None; BOARDSIZE]; BOARDSIZE];
+    let mut board = Board::new();
+    match board.load_fen(FEN) {
+        Ok(()) => board.print(),
+        Err(msg) => panic!("{}", msg),
+    }
 }
